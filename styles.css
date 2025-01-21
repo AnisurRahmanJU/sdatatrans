@@ -61,6 +61,13 @@ body {
   bottom: 10px;
 }
 
+.binary-bit span {
+  font-size: 12px;
+  color: black;
+  position: absolute;
+  bottom: -20px;
+}
+
 .data-bit.active {
   animation: transmit 2s forwards;
 }
