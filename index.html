@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serial Data Transmission</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1 class="text-center">Serial Data Transmission</h1>
+    <div class="d-flex justify-content-center">
+      <button id="async-btn" class="btn btn-primary m-2">Asynchronous</button>
+      <button id="sync-btn" class="btn btn-success m-2">Synchronous</button>
+      <button id="iso-btn" class="btn btn-warning m-2">Isochronous</button>
+    </div>
+    <div class="transmission-container">
+      <div class="sender">Sender</div>
+      <div class="receiver">Receiver</div>
+    </div>
+    <div class="binary-bit-container" id="binary-bits-container"></div>
+    <div id="arrow" class="arrow">→</div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
