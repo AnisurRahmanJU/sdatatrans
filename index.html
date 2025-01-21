@@ -4,11 +4,116 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Serial Data Transmission</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background-color: #f4f4f9;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      margin-top: 50px;
+    }
+
+    .transmission-container {
+      position: relative;
+      height: 200px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #000;
+      border-radius: 10px;
+      padding: 10px;
+      background-color: #fff;
+      width: 80%;
+      margin: 0 auto;
+    }
+
+    .sender, .receiver {
+      width: 100px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid #000;
+      background-color: #7abaff;
+      border-radius: 5px;
+    }
+
+    .binary-bit-container {
+      position: absolute;
+      bottom: 10px;
+      left: 120px;
+      width: 450px;
+      display: flex;
+      justify-content: space-between;
+      border: 2px solid transparent;
+      border-radius: 5px;
+      transition: border 0.3s ease;
+    }
+
+    .binary-bit {
+      width: 30px;
+      height: 30px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      margin: 5px;
+      font-weight: bold;
+      font-size: 20px;
+      border-radius: 5px;
+      background-color: #ffab00;
+      color: white;
+      opacity: 0;
+      position: absolute;
+      bottom: 10px;
+    }
+
+    .binary-bit span {
+      font-size: 12px;
+      color: black;
+      position: absolute;
+      bottom: -20px;
+    }
+
+    .data-bit.active {
+      animation: transmit 2s forwards;
+    }
+
+    @keyframes transmit {
+      0% { transform: translateX(0); opacity: 1; }
+      100% { transform: translateX(450px); opacity: 1; }
+    }
+
+    .arrow {
+      position: absolute;
+      bottom: 40px;
+      left: 140px;
+      font-size: 40px;
+      color: #000;
+      opacity: 0;
+      animation: arrowMove 2s forwards;
+    }
+
+    @keyframes arrowMove {
+      0% { transform: translateX(0); opacity: 1; }
+      100% { transform: translateX(450px); opacity: 1; }
+    }
+
+    .synchronous-frame .binary-bit {
+      border: 3px solid black;
+    }
+
+    .isochronous-frame .binary-bit:nth-child(-n+3) {
+      border: 3px solid red;
+    }
+
+    .isochronous-frame .binary-bit:nth-child(n+4) {
+      border: 2px solid #ffab00;
+    }
+  </style>
 </head>
 <body>
-  <center>
-
+<center>
   <div class="container">
     <h1 class="text-center">Serial Data Transmission</h1>
     <div class="d-flex justify-content-center">
@@ -16,8 +121,7 @@
       <button id="sync-btn" class="btn btn-success m-2">Synchronous</button>
       <button id="iso-btn" class="btn btn-warning m-2">Isochronous</button>
     </div>
-     <br>
-    
+    <br>
     <div class="transmission-container">
       <div class="sender">Sender</div>
       <div class="receiver">Receiver</div>
@@ -26,7 +130,98 @@
     <div id="arrow" class="arrow">→</div>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    const asyncBtn = document.getElementById("async-btn");
+    const syncBtn = document.getElementById("sync-btn");
+    const isoBtn = document.getElementById("iso-btn");
+
+    const binaryBitsContainer = document.getElementById("binary-bits-container");
+    const arrow = document.getElementById("arrow");
+
+    // Function to generate random binary bits, ensuring first is 1 (Stop) and last is 0 (Start)
+    function generateBinaryData(length) {
+      let binaryData = [1]; // First bit as Stop (1)
+      for (let i = 1; i < length - 1; i++) {
+        binaryData.push(Math.random() > 0.5 ? 1 : 0);
+      }
+      binaryData.push(0); // Last bit as Start (0)
+      return binaryData;
+    }
+
+    function createBinaryBits(data, transmissionType) {
+      binaryBitsContainer.innerHTML = ''; // Clear the previous bits
+
+      // Apply specific frame styles for Synchronous or Isochronous
+      if (transmissionType === "sync") {
+        binaryBitsContainer.classList.add('synchronous-frame');
+      } else if (transmissionType === "iso") {
+        binaryBitsContainer.classList.add('isochronous-frame');
+      }
+
+      data.forEach((bit, index) => {
+        const bitElement = document.createElement('div');
+        bitElement.classList.add('binary-bit');
+        bitElement.textContent = bit;
+        
+        // Add text for "Stop" and "Start" bits
+        const label = document.createElement('span');
+        if (index === 0) {
+          bitElement.textContent = '1'; // First bit as Stop
+          label.textContent = 'Stop';
+        } else if (index === data.length - 1) {
+          bitElement.textContent = '0'; // Last bit as Start
+          label.textContent = 'Start';
+        }
+
+        bitElement.appendChild(label);
+        
+        // Position each bit starting aligned with sender
+        bitElement.style.left = `${120 + (index * 50)}px`; // Stagger the bits across
+
+        binaryBitsContainer.appendChild(bitElement);
+
+        // Trigger animation for each bit with a delay
+        setTimeout(() => {
+          bitElement.classList.add('active');
+        }, 200 * index); // Delay for bit by bit movement
+      });
+
+      // Animate arrow movement after a delay
+      setTimeout(() => {
+        arrow.style.animation = 'arrowMove 2s forwards';
+        arrow.style.opacity = 1;
+      }, 200);
+    }
+
+    asyncBtn.addEventListener("click", () => {
+      binaryBitsContainer.classList.remove('synchronous-frame', 'isochronous-frame');
+      const binaryData = generateBinaryData(6); // Generate 6 bits with first as Stop and last as Start
+      createBinaryBits(binaryData, "async");
+      animateBinaryBits();
+    });
+
+    syncBtn.addEventListener("click", () => {
+      binaryBitsContainer.classList.remove('isochronous-frame');
+      const binaryData = generateBinaryData(6); // Generate 6 bits
+      createBinaryBits(binaryData, "sync");
+      animateBinaryBits();
+    });
+
+    isoBtn.addEventListener("click", () => {
+      binaryBitsContainer.classList.remove('synchronous-frame');
+      const binaryData = generateBinaryData(6); // Generate 6 bits
+      createBinaryBits(binaryData, "iso");
+      animateBinaryBits();
+    });
+
+    // Animate the binary bits
+    function animateBinaryBits() {
+      const bits = document.querySelectorAll('.binary-bit');
+      bits.forEach(bit => {
+        bit.style.animation = 'transmit 2s forwards';
+      });
+    }
+  </script>
   </center>
 </body>
 </html>
