@@ -5,12 +5,13 @@ const isoBtn = document.getElementById("iso-btn");
 const binaryBitsContainer = document.getElementById("binary-bits-container");
 const arrow = document.getElementById("arrow");
 
-// Function to generate random binary bits
+// Function to generate random binary bits, ensuring first is 1 (Stop) and last is 0 (Start)
 function generateBinaryData(length) {
-  let binaryData = [];
-  for (let i = 0; i < length; i++) {
+  let binaryData = [1]; // First bit as Stop (1)
+  for (let i = 1; i < length - 1; i++) {
     binaryData.push(Math.random() > 0.5 ? 1 : 0);
   }
+  binaryData.push(0); // Last bit as Start (0)
   return binaryData;
 }
 
@@ -29,8 +30,21 @@ function createBinaryBits(data, transmissionType) {
     bitElement.classList.add('binary-bit');
     bitElement.textContent = bit;
     
+    // Add text for "Stop" and "Start" bits
+    const label = document.createElement('span');
+    if (index === 0) {
+      bitElement.textContent = '1'; // First bit as Stop
+      label.textContent = 'Stop';
+    } else if (index === data.length - 1) {
+      bitElement.textContent = '0'; // Last bit as Start
+      label.textContent = 'Start';
+    }
+
+    bitElement.appendChild(label);
+    
     // Position each bit starting aligned with sender
     bitElement.style.left = `${120 + (index * 50)}px`; // Stagger the bits across
+
     binaryBitsContainer.appendChild(bitElement);
 
     // Trigger animation for each bit with a delay
@@ -48,7 +62,7 @@ function createBinaryBits(data, transmissionType) {
 
 asyncBtn.addEventListener("click", () => {
   binaryBitsContainer.classList.remove('synchronous-frame', 'isochronous-frame');
-  const binaryData = generateBinaryData(6); // Generate 6 bits
+  const binaryData = generateBinaryData(6); // Generate 6 bits with first as Stop and last as Start
   createBinaryBits(binaryData, "async");
   animateBinaryBits();
 });
